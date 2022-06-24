@@ -12,11 +12,15 @@ import Read from "./comp/read";
 import SearchBook from "./comp/search";
 
 class BooksApp extends React.Component {
-  state = {
+  constructor(props) {
+    super(props);
+    this.state= {
     books: [],
   };
-  componentDidMount() {
-    BooksAPI.getAll().then((books) => {
+  
+}
+  componentDidMount = async () => {
+    await BooksAPI.getAll().then((books) => {
       this.setState(() => ({
         books: books,
       }));
@@ -27,15 +31,13 @@ class BooksApp extends React.Component {
     this.updateShelf(event);
   }
 
-  updateShelf(event) {
-    let arrBooks = this.state.books;
-    let bookIndex = arrBooks.findIndex((book) => book.id === event.target.name);
-    arrBooks[bookIndex].shelf = event.target.value;
-    this.setState(() => ({
-      books: arrBooks,
-    }));
+  updateShelf = (event) => {
+    console.log(event)
+    this.setState({
+      books: event,
+    })
   }
-
+  
   filterBooks(books, shelf) {
     return books.filter((book) => {
       return book.shelf.toLowerCase() === shelf;
@@ -77,7 +79,7 @@ class BooksApp extends React.Component {
               </div>
             }
           />
-          <Route path="/search" element={ <SearchBook books={this.state.books} onChange={(event) => this.handleChange(event)} />} />
+          <Route path="/search" element={ <SearchBook onChange={(event) => this.handleChange(event)} />} />
         </Routes>
       </div>
     );

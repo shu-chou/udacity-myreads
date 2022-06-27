@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 
 //Import API
-import * as BooksAPI from "../utils/BooksAPI";
+import * as BooksAPI from '../utils/BooksAPI'
 
+//Import functions
+import * as Funclib from '../utils/func'
 
 class SearchBook extends Component {
 
@@ -11,9 +13,8 @@ class SearchBook extends Component {
     super(props);
     this.state = { 
       result: [],
-      shelf: 'move',
+      myreads: props.myReads,
      };
-
     this.handleChange = this.handleChange.bind(this);
   }
   
@@ -21,20 +22,21 @@ class SearchBook extends Component {
    this.updateBook(event.target.name, event.target.value)
   }
 
-  fetchMovedBooks = async (res) => {
-     const { currentlyReading, wantToRead, read } = res
-     const str = currentlyReading.toString() + ',' + wantToRead.toString() + ','+ read.toString()
-     const arr = str.split(',')
-     const books = await Promise.all(arr.map(async (id) => {
-           const book = await BooksAPI.get(id)
-           return book
-     }))
-     this.props.onChange(books)
-  }
-
   updateBook = async (book, shelf) => {
-     const res = await BooksAPI.update(book, shelf)
-     this.fetchMovedBooks(res)     
+    let movedBook = {}
+    const bookExists = Funclib.findInMyReads(book, this.state.myreads)
+    if(bookExists.length !== 0)
+      {
+        movedBook = Funclib.updateBookShelf(book, shelf, this.state.myreads)
+      } else {
+        movedBook = await BooksAPI.get(book)
+        movedBook.shelf = shelf
+      }
+
+    this.setState(prevState => ({
+      myreads: [...prevState.myreads, movedBook]
+    }))
+    this.props.onChange(this.state.myreads)
   }
 
   searchForBook = async (query)=>{
@@ -47,15 +49,21 @@ class SearchBook extends Component {
         books = []
       } else {
         books = res.map((book) => {
-          if(!('imageLinks' in book)){
-            Object.assign(book, {imageLinks: {thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/128px-No-Image-Placeholder.svg.png'}})
+          const bookExists = Funclib.findInMyReads(book.id, this.state.myreads)
+          if(bookExists.length !== 0)
+          {
+            book = bookExists[0]
           }
+          if(!('imageLinks' in book)){
+              Object.assign(book, {imageLinks: {thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/128px-No-Image-Placeholder.svg.png'}})
+            }
           return book
         })
       }
     }else {
        books = [] 
     }
+
     this.setState({ result: books}) 
   }
 
@@ -86,7 +94,7 @@ class SearchBook extends Component {
                     <div className="book-shelf-changer">
                       <select
                         name={book.id}
-                        value={this.state.shelf}
+                        value={book.shelf? book.shelf: 'move'}
                         onChange={this.handleChange}
                       >
                         <option value="move" disabled>

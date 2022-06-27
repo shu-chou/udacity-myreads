@@ -28,11 +28,19 @@ class BooksApp extends React.Component {
   }
 
   handleChange(event) {
-    this.updateShelf(event);
+    this.updateMyReads(event);
   }
 
   updateShelf = (event) => {
-    console.log(event)
+    let arrBooks = this.state.books;
+    let bookIndex = arrBooks.findIndex((book) => book.id === event.target.name);
+    arrBooks[bookIndex].shelf = event.target.value;
+    this.setState(() => ({
+      books: arrBooks,
+    }));
+  }
+
+  updateMyReads = (event) => {
     this.setState({
       books: event,
     })
@@ -55,19 +63,16 @@ class BooksApp extends React.Component {
                 <div className="list-books-content">
                   <div>
                     <CurrentlyReading
-                      books={this.filterBooks(
-                        this.state.books,
-                        "currentlyreading"
-                      )}
-                      onChange={(event) => this.handleChange(event)}
+                      books={this.filterBooks(this.state.books, "currentlyreading")}
+                      onChange={(event) => this.updateShelf(event)}
                     />
                     <WantToRead
                       books={this.filterBooks(this.state.books, "wanttoread")}
-                      onChange={(event) => this.handleChange(event)}
+                      onChange={(event) => this.updateShelf(event)}
                     />
                     <Read
                       books={this.filterBooks(this.state.books, "read")}
-                      onChange={(event) => this.handleChange(event)}
+                      onChange={(event) => this.updateShelf(event)}
                     />
                   </div>
                 </div>
@@ -79,7 +84,7 @@ class BooksApp extends React.Component {
               </div>
             }
           />
-          <Route path="/search" element={ <SearchBook onChange={(event) => this.handleChange(event)} />} />
+          <Route path="/search" element={ <SearchBook myReads={this.state.books} onChange={(event) => this.handleChange(event)} />} />
         </Routes>
       </div>
     );

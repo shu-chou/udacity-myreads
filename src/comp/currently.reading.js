@@ -7,6 +7,7 @@ class CurrentlyReading extends Component {
 
     this.handleChange = this.handleChange.bind(this);
   }
+  
   handleChange(event) {
     this.props.onChange(event);
   }
@@ -30,10 +31,7 @@ class CurrentlyReading extends Component {
                       }}
                     />
                     <div className="book-shelf-changer">
-                      <select
-                        name={book.id}
-                        value={this.state.value}
-                        onChange={this.handleChange}
+                      <select name={book.id} value={this.state.value} onChange={this.handleChange}
                       >
                         <option value="move" disabled>
                           Move to...

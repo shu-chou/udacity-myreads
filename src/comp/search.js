@@ -19,6 +19,7 @@ class SearchBook extends Component {
   }
   
   handleChange(event) {
+   BooksAPI.update(event.target.name, event.target.value) 
    this.updateBook(event.target.name, event.target.value)
   }
 
@@ -28,11 +29,11 @@ class SearchBook extends Component {
     if(bookExists.length !== 0)
       {
         movedBook = Funclib.updateBookShelf(book, shelf, this.state.myreads)
-      } else {
+      } 
+    else {
         movedBook = await BooksAPI.get(book)
         movedBook.shelf = shelf
       }
-
     this.setState(prevState => ({
       myreads: [...prevState.myreads, movedBook]
     }))

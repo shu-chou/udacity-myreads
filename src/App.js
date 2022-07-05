@@ -19,25 +19,28 @@ class BooksApp extends React.Component {
   };
   
 }
-  componentDidMount = async () => {
-    await BooksAPI.getAll().then((books) => {
-      this.setState(() => ({
-        books: books,
-      }));
-    });
+  componentDidMount() {
+      this.fetchbooks()
+  }
+
+  fetchbooks = async () => {
+    await BooksAPI.getAll().then((data) => {
+      this.setState({books: data})
+    })
   }
 
   handleChange(event) {
     this.updateMyReads(event);
   }
 
-  updateShelf = (event) => {
+  updateShelf = async (event) => {
     let arrBooks = this.state.books;
     let bookIndex = arrBooks.findIndex((book) => book.id === event.target.name);
     arrBooks[bookIndex].shelf = event.target.value;
     this.setState(() => ({
       books: arrBooks,
     }));
+    await BooksAPI.update(event.target.name, event.target.value)
   }
 
   updateMyReads = (event) => {
